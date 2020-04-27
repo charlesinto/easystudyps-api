@@ -1,4 +1,4 @@
-
+const {admin} = require('../Database')
 
 const {userCreationSchema, userLoginSchema} = require('../model/userModels');
 
@@ -18,7 +18,32 @@ const validateUserLoginParams = (req, res, next) => {
      return next();
  }
 
+
+verifyToken = async (req, res, next) => {
+    try{
+        const bearerHeader = req.body.token || req.headers['x-access-token'];
+        if (!bearerHeader){
+            return res.status(401).send({
+                message: 'Unauthorized user'
+            });
+        }
+
+       const decodedToken = await admin.auth().verifyIdToken(bearerHeader)
+
+       req.decodedToken = decodedToken;
+
+       return next();
+    }catch(error){
+        console.error(error);
+        if(error.code === 'auth/id-token-expired'){
+            return res.status(406).send({message:'Session expired, please login to continue'})
+        }
+        return res.status(500).send({error})
+    }
+}
+
 module.exports = {
     validateUserParams,
-    validateUserLoginParams
+    validateUserLoginParams,
+    verifyToken
 }

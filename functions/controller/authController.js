@@ -4,13 +4,18 @@ const db = admin.firestore();
 
 const createUser = async (req, res) => {
     try{
-        const {email, password, phoneNumber, lastName, firstName} = req.body;
-
+        const {email, password, phoneNumber, lastName, firstName, appDomain, classes} = req.body;
+        const partners = await db.collection('partners').where('appDomain','==',appDomain).get()
+        const serverPartner = [];
+        partners.forEach(doc => serverPartner.push({id: doc.id, appDomain: doc.data().appDomain}))
+        if(serverPartner.length <= 0)
+            return res.status(400).send({message: 'Partner not recongised, invalid app domain'})
+        const partnerCode = serverPartner[0].id;
         const data = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        const token = await data.user.getIdToken(true);
+        const token = await firebase.auth().currentUser.getIdToken(true)
         const uid = data.user.uid;
         await db.doc(`/teachers/${uid}`)
-                .set({email, phoneNumber, lastName, firstName, uid});
+                .set({email, phoneNumber, lastName, firstName, uid, partnerCode, classes});
         return res.status(201).send({
             message:'User created successfully',
             token
