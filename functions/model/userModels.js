@@ -7,7 +7,14 @@ const userCreationSchema = joi.object({
     phoneNumber: joi.number().required(),
     lastName: joi.string().required(),
     firstName: joi.string().required(),
-    classes: joi.array().min(1)
+    classes: joi.array().items(joi.object({
+        class: joi.string().required(),
+        schoolLevel: joi.string().required()
+    })).min(1).required(),
+	subjects: joi.array().items(joi.object({
+        subject: joi.string().required(),
+        schoolLevel: joi.string().required()
+    })).min(1).required(),
 });
 
 const userLoginSchema = joi.object({

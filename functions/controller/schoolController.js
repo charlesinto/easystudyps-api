@@ -6,7 +6,7 @@ const db = admin.firestore();
 const createSchool = async (req, res) => {
     const {appDomain, schoolName, licenseStartDate, licenseEndDate} = req.body;
     const randomGenerator = Math.floor(Math.random() * 10000);
-    const schoolCodeT = schoolName.substring(0,4);
+    const schoolCodeT = schoolName.substring(0,4).trim();
     const schoolCode = `${schoolCodeT}${randomGenerator}`;
 
     await db.doc(`/partners/${schoolCode}`).set({appDomain, schoolName, licenseStartDate, licenseEndDate});
@@ -14,8 +14,8 @@ const createSchool = async (req, res) => {
     return res.status(201).send({
         schoolCode,
         schoolName,
-        licenseEndDate, 
-        licenseStartDate,
+        licenseEndDate: firebase.firestore.Timestamp.fromDate(new Date(licenseEndDate)), 
+        licenseStartDate: firebase.firestore.Timestamp.fromDate(new Date(licenseStartDate)),
         appDomain
     })
 }

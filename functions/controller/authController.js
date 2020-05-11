@@ -4,7 +4,7 @@ const db = admin.firestore();
 
 const createUser = async (req, res) => {
     try{
-        const {email, password, phoneNumber, lastName, firstName, appDomain, classes} = req.body;
+        const {email, password, phoneNumber, lastName, firstName, appDomain, classes, subjects} = req.body;
         const partners = await db.collection('partners').where('appDomain','==',appDomain).get()
         const serverPartner = [];
         partners.forEach(doc => serverPartner.push({id: doc.id, appDomain: doc.data().appDomain}))
@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
         const token = await firebase.auth().currentUser.getIdToken(true)
         const uid = data.user.uid;
         await db.doc(`/teachers/${uid}`)
-                .set({email, phoneNumber, lastName, firstName, uid, partnerCode, classes});
+                .set({email, phoneNumber, lastName, firstName, uid, partnerCode, classes, subjects});
         return res.status(201).send({
             message:'User created successfully',
             token
