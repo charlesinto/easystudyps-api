@@ -39,6 +39,31 @@ const createTest = async (req, res) => {
     
 }
 
+const addTestQuestion  = async (req, res) => {
+    try{
+        const {id} = req.params;
+        const {newQuestion} = req.body;
+        if(!id) return res.status(400).send({message: 'MISSING PARAMS {ID} TEST ID'});
+        const docs = await db.collection('assessments').where('id', '==', id).get();
+        const questions = docs.docs[0].data().questions()
+        questions.add(newQuestion)
+
+        await db.doc(`/collection/${docs.docs[0].id}`).update({
+            questions
+        })
+
+        const newDoc = await db.collection('assessments').where('id', '==', id).get();
+
+        return res.status(200).send({
+            message: 'Operation successful',
+            test: newDoc.docs[0].data()
+        })
+    }catch(error){
+        console.error(error);
+        return res.status(500).send({error});
+    }
+}
+
 const getTestsTeacher = async (req, res) => {
     try{
         console.log(req.query)
@@ -79,9 +104,12 @@ const getTestsTeacher = async (req, res) => {
     }
 }
 
+
+
 module.exports = {
     createTest,
-    getTestsTeacher
+    getTestsTeacher,
+    addTestQuestion
 }
 
 /*

@@ -48,7 +48,8 @@ const loginUser = async (req, res) => {
             email: doc.data().email,
             firstName: doc.data().firstName,
             lastName: doc.data().lastName,
-            phoneNumber: doc.data().phoneNumber
+            phoneNumber: doc.data().phoneNumber,
+            status:'active'
         })
     }catch(error){
         if(error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found')
@@ -58,7 +59,39 @@ const loginUser = async (req, res) => {
 
 }
 
+const deleteTeacher = async (req, res) => {
+    try{
+        const {email} = req.params;
+
+        if(!email) return res.status(400).send({message:' MISSING PARAMS, EMAIL IS REQUIRED'})
+
+        const docSnapshot = await db.collection('teachers').where('email', '==', email ).get()
+        // console.log(docSnapshot.docs[0].id)
+        if(!docSnapshot.empty){
+            const doc = docSnapshot.docs[0];
+            const uid = doc.data().uid
+            if(uid){
+                admin.auth().deleteUser(uid)
+                await db.doc(`/teachers/${doc.id}`).delete()
+                return res.status(200).send({
+                    meessage: 'Account Deleted successfully'
+                })
+            }
+            return res.status(404).send({
+                message: 'No Account found with the email'
+            })
+        }
+        return res.status(404).send({
+            message: 'User Account does not exist'
+        })
+    }catch(error){
+        console.error(error);
+        return res.status(500).send({error})
+    }
+}
+
 module.exports = {
     createUser,
-    loginUser
+    loginUser,
+    deleteTeacher
 }
