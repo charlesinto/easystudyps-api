@@ -4,8 +4,13 @@ const validateTestCreationParams = (req, res, next) => {
     try{
         const {error} = testCreationModel.validate(req.body);
 
-        if(error)
-            return res.status(400).send(error);
+        if(error){
+			console.error(req.body);
+			console.error(error);
+			return res.status(400).send(error);
+		}
+		
+            
         
         return next();
     }catch(error){
