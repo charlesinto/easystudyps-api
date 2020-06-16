@@ -17,6 +17,23 @@ const userCreationSchema = joi.object({
     })).min(1).required(),
 });
 
+const userUpdateSchema = joi.object({
+    oldEmail: joi.string().email().required(),
+    newEmail: joi.string().email(),
+    password: joi.string(),
+    phoneNumber: joi.number(),
+    lastName: joi.string(),
+    firstName: joi.string(),
+    classes: joi.array().items(joi.object({
+        class: joi.string().required(),
+        schoolLevel: joi.string().required()
+    })).min(1),
+	subjects: joi.array().items(joi.object({
+        subject: joi.string().required(),
+        schoolLevel: joi.string().required()
+    })).min(1),
+});
+
 const userLoginSchema = joi.object({
     email: joi.string().email().required(),
     password: joi.string().required()
@@ -39,5 +56,6 @@ module.exports = {
     userCreationSchema,
     userLoginSchema,
     schoolSchema,
-    studentSchema
+    studentSchema,
+    userUpdateSchema
 }

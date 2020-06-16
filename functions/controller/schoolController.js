@@ -4,19 +4,29 @@ const { firebase, admin} = require('../Database')
 const db = admin.firestore();
 
 const createSchool = async (req, res) => {
-    const {appDomain, schoolName, licenseStartDate, licenseEndDate} = req.body;
+    const {appDomain, schoolName, licenseStartDate,email, password,firstName, lastName,phoneNumber, licenseEndDate} = req.body;
     const randomGenerator = Math.floor(Math.random() * 10000);
     const schoolCodeT = schoolName.substring(0,4).trim();
     const schoolCode = `${schoolCodeT}${randomGenerator}`;
 
     await db.doc(`/partners/${schoolCode}`).set({appDomain, schoolName, licenseStartDate, licenseEndDate});
-
+    const data = await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const uid = data.user.uid;
+    await db.collection(`admininstrators`)
+                .add({email, phoneNumber, lastName, firstName, uid, schoolCode});
+        
     return res.status(201).send({
         schoolCode,
         schoolName,
         licenseEndDate: firebase.firestore.Timestamp.fromDate(new Date(licenseEndDate)), 
         licenseStartDate: firebase.firestore.Timestamp.fromDate(new Date(licenseStartDate)),
-        appDomain
+        appDomain,
+        adminDetails: {
+            email, 
+            password,
+            firstName,
+            lastName
+        }
     })
 }
 

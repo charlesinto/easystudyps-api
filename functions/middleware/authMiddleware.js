@@ -1,6 +1,6 @@
 const {admin} = require('../Database')
 
-const {userCreationSchema, userLoginSchema} = require('../model/userModels');
+const {userCreationSchema, userLoginSchema, userUpdateSchema} = require('../model/userModels');
 
 const validateUserParams = (req, res, next) => {
    const {error} = userCreationSchema.validate(req.body);
@@ -47,8 +47,20 @@ verifyToken = async (req, res, next) => {
     }
 }
 
+const validateTeacherUpdateParams =  (req, res, next) => {
+    const {error} = userUpdateSchema.validate(req.body);
+   if(error){
+       console.error(error);
+    return res.status(400).send({error});
+   }
+        
+
+    return next();
+}
+
 module.exports = {
     validateUserParams,
     validateUserLoginParams,
-    verifyToken
+    verifyToken,
+    validateTeacherUpdateParams
 }
